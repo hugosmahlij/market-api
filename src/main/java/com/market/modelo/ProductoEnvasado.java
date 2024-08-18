@@ -1,5 +1,7 @@
 package main.java.com.market.modelo;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.Date;
 
 public final class ProductoEnvasado extends Producto{
@@ -7,6 +9,11 @@ public final class ProductoEnvasado extends Producto{
     private Boolean esImportado;
     private Date fechaVencimiento;
     private Integer calorias;
+
+    @Override
+    public void setId(@NotNull String id) {
+        super.setId("AB".concat(id));
+    }
 
     public String getTipoEnvase() {
         return tipoEnvase;

@@ -1,6 +1,7 @@
 package main.java.com.market.modelo;
 
 import main.java.com.market.excepciones.ValorInvalidoException;
+import org.jetbrains.annotations.NotNull;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -13,6 +14,7 @@ abstract class Producto {
     protected BigDecimal porcentajeGanancia;
     protected Boolean estaDisponibleVenta;
     protected BigDecimal porcentajeDescuento;
+    protected Integer idTienda;
 
     public BigDecimal getPrecioFinal(){
         BigDecimal cantidadDescuento = precioUnitario.multiply(porcentajeDescuento).divide(new BigDecimal("100"),2,RoundingMode.HALF_UP);
@@ -21,9 +23,9 @@ abstract class Producto {
     }
 
 
-    public void setId(String id) {
-        if (id != null && id.length() > 5) {
-            throw new ValorInvalidoException("El id del producto no puede contener más de 5 caracteres.");
+    public void setId(@NotNull String id) {
+        if (id.length() > 5) {
+            throw new ValorInvalidoException("El valor ingresado no puede contener más de 3 caracteres.");
         }
 
         this.id = id;
@@ -79,5 +81,13 @@ abstract class Producto {
 
     public void setPorcentajeDescuento(BigDecimal porcentajeDescuento) {
         this.porcentajeDescuento = porcentajeDescuento;
+    }
+
+    public Integer getIdTienda() {
+        return idTienda;
+    }
+
+    public void setIdTienda(Integer idTienda) {
+        this.idTienda = idTienda;
     }
 }
