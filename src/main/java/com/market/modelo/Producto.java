@@ -16,9 +16,14 @@ abstract class Producto {
     protected BigDecimal porcentajeDescuento;
     protected Integer idTienda;
 
+
     public BigDecimal getPrecioFinal(){
-        BigDecimal cantidadDescuento = precioUnitario.multiply(porcentajeDescuento).divide(new BigDecimal("100"),2,RoundingMode.HALF_UP);
-        BigDecimal precioFinal = precioUnitario.subtract(cantidadDescuento);
+        BigDecimal precioDeVenta = precioUnitario.multiply(porcentajeGanancia.divide(new BigDecimal(100),2,RoundingMode.HALF_UP).add(new BigDecimal(1)));
+        if ( porcentajeDescuento == null || porcentajeDescuento.equals(new BigDecimal(0))) {
+            return precioDeVenta;
+        }
+        BigDecimal cantidadDescuento = precioDeVenta.multiply(porcentajeDescuento).divide(new BigDecimal("100"),2,RoundingMode.HALF_UP);
+        BigDecimal precioFinal = precioDeVenta.subtract(cantidadDescuento);
         return precioFinal.setScale(2, RoundingMode.HALF_UP);
     }
 
