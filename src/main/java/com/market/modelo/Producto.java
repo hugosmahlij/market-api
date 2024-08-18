@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
-abstract class Producto {
+public abstract class Producto {
     protected String id;
     protected String descripcion;
     protected Integer stock;
@@ -14,7 +14,6 @@ abstract class Producto {
     protected BigDecimal porcentajeGanancia;
     protected Boolean estaDisponibleVenta;
     protected BigDecimal porcentajeDescuento;
-    protected Integer idTienda;
 
 
     public BigDecimal getPrecioFinal(){
@@ -86,13 +85,5 @@ abstract class Producto {
 
     public void setPorcentajeDescuento(BigDecimal porcentajeDescuento) {
         this.porcentajeDescuento = porcentajeDescuento;
-    }
-
-    public Integer getIdTienda() {
-        return idTienda;
-    }
-
-    public void setIdTienda(Integer idTienda) {
-        this.idTienda = idTienda;
     }
 }
