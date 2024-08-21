@@ -20,7 +20,13 @@ public final class Tienda {
     }
 
     public List<Producto> getProductosEnStock() {
-        return null; //TODO
+        List<Producto> productosEnStock = new ArrayList<>();
+        for (int i = 0; i < listaProductos.size(); i++) {
+            Producto producto = listaProductos.get(i);
+            if(producto.getStock() > 0 && producto.getEstaDisponibleVenta());
+            productosEnStock.add(producto);
+        }
+        return productosEnStock;
     }
 
     public Integer getId() {
