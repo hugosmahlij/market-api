@@ -16,7 +16,7 @@ public class ServicioProducto {
     public void agregarProductoATienda(Producto producto, Tienda tienda) {
         BigDecimal costoTotalProductos = producto.getPrecioUnitario().multiply(new BigDecimal(producto.getStock()));
         Double saldoDeCaja = tienda.getSaldoCaja() - costoTotalProductos.doubleValue();
-        if(tienda.stockTotalProductos() + producto.getStock() > tienda.getMaximoProductosStock() ) {
+        if (tienda.stockTotalProductos() + producto.getStock() > tienda.getMaximoProductosStock()) {
             throw new ExcesoDeStockException();
         }
 
@@ -34,11 +34,12 @@ public class ServicioProducto {
         Double graduacion = bebida.getGraduacionAlcohol();
         Integer calorias = bebida.getCalorias();
 
-        if (graduacion <= 2) { 
+        if (graduacion <= 2) {
             return calorias;
-        } else if (graduacion <= 4.5 ) {
+        } else if (graduacion <= 4.5) {
             return (int) (calorias * 1.25);
-        } else  {
+        } else {
             return (int) (calorias * 1.5);
         }
-    } 
+    }
+}
