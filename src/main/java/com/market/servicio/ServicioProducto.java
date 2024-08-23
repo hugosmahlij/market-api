@@ -161,4 +161,13 @@ public class ServicioProducto {
 
         return productosFiltrados;
     }
+
+    //Metodo para mostrar el stock y saldo después de cada operación
+    public void mostrarStockYSaldo(Tienda tienda){
+        System.out.println("Saldo de la caja: " + tienda.getSaldoCaja());
+        System.out.println("Stock de productos:");
+        for(Producto producto : tienda.getListaProductos()){
+            System.out.println("Producto: " + producto.getDescripcion() + " Stock: " + producto.getStock());
+        }
+    }
 }

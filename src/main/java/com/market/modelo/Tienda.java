@@ -11,6 +11,9 @@ public final class Tienda {
     private Integer maximoProductosStock;
     private List<Producto> listaProductos = new ArrayList<Producto>();
 
+    public <E> Tienda(ArrayList<E> listaDeProductos, double saldo, int productosStock) {
+    }
+
     public Integer stockTotalProductos() {
         Integer sumaStock = 0;
         for (int i = 0; i < listaProductos.size(); i++) {
