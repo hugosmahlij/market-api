@@ -8,6 +8,8 @@ import main.java.com.market.modelo.*;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 public class ServicioProducto {
@@ -74,13 +76,13 @@ public class ServicioProducto {
             precioFinal = precioFinal.add(impuesto);
         }
 
-        return precioFinal.setScale(2,RoundingMode.HALF_UP);
+        return precioFinal.setScale(2, RoundingMode.HALF_UP);
     }
 
     //Metodo para realizar una venta y mostrar detalles
 
     public void realizarVenta(List<Producto> productosVendidos, List<Integer> cantidadesVendidas, Tienda tienda) {
-        if (productosVendidos.size() > 3 ) {
+        if (productosVendidos.size() > 3) {
             throw new MinimoProductosException();
         }
 
@@ -93,7 +95,7 @@ public class ServicioProducto {
             Producto producto = productosVendidos.get(i);
             int cantidadVendida = cantidadesVendidas.get(i);
 
-            if(cantidadVendida > 12) {
+            if (cantidadVendida > 12) {
                 throw new MaximoUnidadesException();
             }
 
@@ -104,7 +106,7 @@ public class ServicioProducto {
 
             int stockDisponible = producto.getStock();
 
-            if(cantidadVendida > stockDisponible) {
+            if (cantidadVendida > stockDisponible) {
                 detalleVenta.append("Hay productos con stock disponible menor al solicitado.");
                 cantidadVendida = stockDisponible;
                 producto.setEstaDisponibleVenta(false);
@@ -117,7 +119,7 @@ public class ServicioProducto {
             totalVenta = totalVenta.add(precioVenta);
 
             producto.setStock(stockDisponible - cantidadVendida);
-            if(producto.getStock() == 0 ) {
+            if (producto.getStock() == 0) {
                 producto.setEstaDisponibleVenta(false);
             }
         }
@@ -127,5 +129,36 @@ public class ServicioProducto {
         }
 
         System.out.println("TOTAL VENTA:" + totalVenta);
+    }
+
+    //Metodo para obtemer los comestibles no importados con descuento menor a un procentaje dado
+    public List<String> obtenerComestiblesConMenorDescuento(BigDecimal porcentajeDescuento, Tienda tienda) {
+        List<String> productosFiltrados = new ArrayList<>();
+
+        for (int i = 0; i < tienda.getListaProductos().size(); i++) {
+            Producto producto = tienda.getListaProductos().get(i);
+
+            if (producto instanceof ProductoEnvasado) {
+                ProductoEnvasado comestible = (ProductoEnvasado) producto;
+
+                //Verificar si el producto no es importado y su descuento es menor al porcentaje dado
+                if (!comestible.getEsImportado() && comestible.getPorcentajeDescuento().compareTo(porcentajeDescuento) < 0) {
+                    productosFiltrados.add(comestible.getDescripcion().toUpperCase());
+                }
+            }
+        }
+
+        //Ordenar la lista de productos por precio de venta ascendente
+        productosFiltrados.sort(new Comparator<String>() {
+            @Override
+            public int compare(String producto1, String producto2) {
+                BigDecimal precioProducto1 = tienda.getListaProductos().stream().filter(p -> p.getDescripcion().equalsIgnoreCase(producto1)).findFirst().map(Producto::getPrecioFinal).orElse(BigDecimal.ZERO);
+                BigDecimal precioProducto2 = tienda.getListaProductos().stream().filter(p -> p.getDescripcion().equalsIgnoreCase(producto2)).findFirst().map(Producto::getPrecioFinal).orElse(BigDecimal.ZERO);
+
+                return precioProducto1.compareTo(precioProducto2);
+            }
+        });
+
+        return productosFiltrados;
     }
 }
