@@ -29,7 +29,7 @@ public abstract class Producto {
 
     public void setId(@NotNull String id) {
         if (id.length() > 5) {
-            throw new ValorInvalidoException("El valor ingresado no puede contener más de 3 caracteres.");
+            throw new ValorInvalidoException();
         }
 
         this.id = id;
