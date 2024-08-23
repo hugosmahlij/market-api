@@ -1,6 +1,8 @@
 package main.java.com.market.modelo;
 
-import main.java.com.market.excepciones.ValorInvalidoException;
+import main.java.com.market.excepciones.PrecioUnitarioInvalidoException;
+import main.java.com.market.excepciones.ValorInvalidoIdException;
+import main.java.com.market.excepciones.ValorInvalidoPrecioFinalException;
 import org.jetbrains.annotations.NotNull;
 
 import java.math.BigDecimal;
@@ -17,11 +19,22 @@ public abstract class Producto {
 
 
     public BigDecimal getPrecioFinal(){
-        BigDecimal precioDeVenta = precioUnitario.multiply(porcentajeGanancia.divide(new BigDecimal(100),2,RoundingMode.HALF_UP).add(new BigDecimal(1)));
+        if (precioUnitario == null || porcentajeGanancia == null){
+            throw new ValorInvalidoPrecioFinalException();
+        }
+
+        BigDecimal precioDeVenta = precioUnitario
+                .multiply(porcentajeGanancia.divide(new BigDecimal(100),2,RoundingMode.HALF_UP)
+                        .add(new BigDecimal(1)));
+
         if ( porcentajeDescuento == null || porcentajeDescuento.equals(new BigDecimal(0))) {
             return precioDeVenta;
         }
-        BigDecimal cantidadDescuento = precioDeVenta.multiply(porcentajeDescuento).divide(new BigDecimal("100"),2,RoundingMode.HALF_UP);
+
+        BigDecimal cantidadDescuento = precioDeVenta
+                .multiply(porcentajeDescuento)
+                .divide(new BigDecimal("100"),2,RoundingMode.HALF_UP);
+
         BigDecimal precioFinal = precioDeVenta.subtract(cantidadDescuento);
         return precioFinal.setScale(2, RoundingMode.HALF_UP);
     }
@@ -29,7 +42,7 @@ public abstract class Producto {
 
     public void setId(@NotNull String id) {
         if (id.length() > 5) {
-            throw new ValorInvalidoException();
+            throw new ValorInvalidoIdException();
         }
 
         this.id = id;
@@ -60,6 +73,9 @@ public abstract class Producto {
     }
 
     public void setPrecioUnitario(BigDecimal precioUnitario) {
+        if (precioUnitario == null || precioUnitario.compareTo(BigDecimal.ZERO) <= 0 ) {
+            throw new PrecioUnitarioInvalidoException();
+        }
         this.precioUnitario = precioUnitario;
     }
 

@@ -1,9 +1,6 @@
 package main.java.com.market.servicio;
 
-import main.java.com.market.excepciones.ExcesoDeStockException;
-import main.java.com.market.excepciones.MaximoUnidadesException;
-import main.java.com.market.excepciones.MinimoProductosException;
-import main.java.com.market.excepciones.SaldoInsuficienteException;
+import main.java.com.market.excepciones.*;
 import main.java.com.market.modelo.*;
 
 import java.math.BigDecimal;
@@ -16,16 +13,26 @@ public class ServicioProducto {
 
     // Metodo para agregar productos a la tienda
     public void agregarProductoATienda(Producto producto, Tienda tienda) {
+        //Verificar que el producto o la tienda no sean nulos
+        if(producto == null || tienda == null ){
+            throw new NoPuedenSerNulosException();
+        }
+
+        //Calcular el costo total de los productos
         BigDecimal costoTotalProductos = producto.getPrecioUnitario().multiply(new BigDecimal(producto.getStock()));
         Double saldoDeCaja = tienda.getSaldoCaja() - costoTotalProductos.doubleValue();
+
+        //Verificar exceso de stock
         if (tienda.stockTotalProductos() + producto.getStock() > tienda.getMaximoProductosStock()) {
             throw new ExcesoDeStockException();
         }
 
+        //Verificar saldo insuficiente
         if (saldoDeCaja < 0) {
             throw new SaldoInsuficienteException();
         }
 
+        //Actualizar el saldo de la caja y agregar el producto
         tienda.setSaldoCaja(saldoDeCaja);
         producto.setEstaDisponibleVenta(true);
         tienda.getListaProductos().add(producto);
@@ -35,6 +42,10 @@ public class ServicioProducto {
     private Integer calcularCalorias(ProductoBebida bebida) {
         Double graduacion = bebida.getGraduacionAlcohol();
         Integer calorias = bebida.getCalorias();
+
+        if(graduacion == null || calorias == null) {
+            throw new GraduacionOCaloriasException();
+        }
 
         if (graduacion <= 2) {
             return calorias;
@@ -47,8 +58,14 @@ public class ServicioProducto {
 
     //Metodo para calcular el precio final considerando impuestos y restricciones
     private BigDecimal obtenerPrecioFinalConReglas(Producto producto) {
+
+        if(producto == null ) {
+            throw new ProductoNuloExcepetion();
+        }
+
         BigDecimal precioFinal = producto.getPrecioFinal();
 
+        //Aplicar el descuento segun el tipo de producto
         if (producto instanceof ProductoBebida) {
             ProductoBebida bebida = (ProductoBebida) producto;
             if (bebida.getPorcentajeDescuento().compareTo(new BigDecimal("10")) > 0) {
@@ -66,11 +83,13 @@ public class ServicioProducto {
             }
         }
 
+        //Aplicar descuento comun
         if (producto.getPorcentajeDescuento() != null) {
             BigDecimal descuento = precioFinal.multiply(producto.getPorcentajeDescuento().divide(new BigDecimal("100"), 2, RoundingMode.HALF_UP));
             precioFinal = precioFinal.subtract(descuento);
         }
 
+        //Aplicar impuesto a productos importados
         if (producto instanceof ProductoEnvasado && ((ProductoEnvasado) producto).getEsImportado()) {
             BigDecimal impuesto = precioFinal.multiply(new BigDecimal("0.12"));
             precioFinal = precioFinal.add(impuesto);
@@ -80,8 +99,11 @@ public class ServicioProducto {
     }
 
     //Metodo para realizar una venta y mostrar detalles
-
     public void realizarVenta(List<Producto> productosVendidos, List<Integer> cantidadesVendidas, Tienda tienda) {
+        if(productosVendidos == null || cantidadesVendidas == null || tienda == null){
+            throw new ParametrosDeVentaException();
+        }
+
         if (productosVendidos.size() > 3) {
             throw new MinimoProductosException();
         }
@@ -102,6 +124,7 @@ public class ServicioProducto {
             if (!producto.getEstaDisponibleVenta()) {
                 detalleVenta.append("El producto").append(producto.getId()).append(producto.getDescripcion()).append("no se encuentra disponible");
                 hayProductoNoDisponible = true;
+                continue;
             }
 
             int stockDisponible = producto.getStock();
@@ -133,6 +156,10 @@ public class ServicioProducto {
 
     //Metodo para obtemer los comestibles no importados con descuento menor a un procentaje dado
     public List<String> obtenerComestiblesConMenorDescuento(BigDecimal porcentajeDescuento, Tienda tienda) {
+        if(porcentajeDescuento == null || tienda == null){
+            throw new PorcentajeOTiendaNulosException();
+        }
+
         List<String> productosFiltrados = new ArrayList<>();
 
         for (int i = 0; i < tienda.getListaProductos().size(); i++) {
@@ -164,6 +191,10 @@ public class ServicioProducto {
 
     //Metodo para mostrar el stock y saldo después de cada operación
     public void mostrarStockYSaldo(Tienda tienda){
+        if (tienda == null) {
+            throw new MostrarStockTiendaException();
+        }
+
         System.out.println("Saldo de la caja: " + tienda.getSaldoCaja());
         System.out.println("Stock de productos:");
         for(Producto producto : tienda.getListaProductos()){
