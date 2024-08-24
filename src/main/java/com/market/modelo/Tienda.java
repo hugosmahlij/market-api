@@ -12,7 +12,7 @@ public final class Tienda {
     private List<Producto> listaProductos = new ArrayList<Producto>();
 
     public Tienda(List<Producto> listaProductos, Double saldoCaja, int maximoProductosStock) {
-        this.listaProductos = listaProductos != null ? listaProductos : new ArrayList<>();
+        this.listaProductos = listaProductos != null ? new ArrayList<>(listaProductos) : new ArrayList<>();
         this.saldoCaja = saldoCaja;
         this.maximoProductosStock = maximoProductosStock;
     }
@@ -29,7 +29,7 @@ public final class Tienda {
         List<Producto> productosEnStock = new ArrayList<>();
         for (int i = 0; i < listaProductos.size(); i++) {
             Producto producto = listaProductos.get(i);
-            if(producto.getStock() > 0 && producto.getEstaDisponibleVenta()){
+            if (producto.getStock() > 0 && producto.getEstaDisponibleVenta()) {
                 productosEnStock.add(producto);
             }
         }
@@ -73,6 +73,6 @@ public final class Tienda {
     }
 
     public void setListaProductos(List<Producto> listaProductos) {
-        this.listaProductos = listaProductos;
+        this.listaProductos = new ArrayList<>(listaProductos);
     }
 }

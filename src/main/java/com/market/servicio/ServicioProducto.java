@@ -14,7 +14,7 @@ public class ServicioProducto {
     // Metodo para agregar productos a la tienda
     public void agregarProductoATienda(Producto producto, Tienda tienda) {
         //Verificar que el producto o la tienda no sean nulos
-        if(producto == null || tienda == null ){
+        if (producto == null || tienda == null) {
             throw new NoPuedenSerNulosException();
         }
 
@@ -43,7 +43,7 @@ public class ServicioProducto {
         Double graduacion = bebida.getGraduacionAlcohol();
         Integer calorias = bebida.getCalorias();
 
-        if(graduacion == null || calorias == null) {
+        if (graduacion == null || calorias == null) {
             throw new GraduacionOCaloriasException();
         }
 
@@ -59,11 +59,15 @@ public class ServicioProducto {
     //Metodo para calcular el precio final considerando impuestos y restricciones
     private BigDecimal obtenerPrecioFinalConReglas(Producto producto) {
 
-        if(producto == null ) {
+        if (producto == null) {
             throw new ProductoNuloExcepetion();
         }
 
         BigDecimal precioFinal = producto.getPrecioFinal();
+
+        if (precioFinal == null) {
+            throw new ValorInvalidoPrecioFinalException();
+        }
 
         //Aplicar el descuento segun el tipo de producto
         if (producto instanceof ProductoBebida) {
@@ -84,7 +88,8 @@ public class ServicioProducto {
         }
 
         //Aplicar descuento comun
-        if (producto.getPorcentajeDescuento() != null) {
+        BigDecimal porcentajeDescuento = producto.getPorcentajeDescuento();
+        if (porcentajeDescuento != null) {
             BigDecimal descuento = precioFinal.multiply(producto.getPorcentajeDescuento().divide(new BigDecimal("100"), 2, RoundingMode.HALF_UP));
             precioFinal = precioFinal.subtract(descuento);
         }
@@ -100,8 +105,12 @@ public class ServicioProducto {
 
     //Metodo para realizar una venta y mostrar detalles
     public void realizarVenta(List<Producto> productosVendidos, List<Integer> cantidadesVendidas, Tienda tienda) {
-        if(productosVendidos == null || cantidadesVendidas == null || tienda == null){
+        if (productosVendidos == null || cantidadesVendidas == null || tienda == null) {
             throw new ParametrosDeVentaException();
+        }
+
+        if (productosVendidos.size() != cantidadesVendidas.size()) {
+            throw new IllegalArgumentException("El tamaño de productosVendidos y cantidadesVendidas debe ser igual");
         }
 
         if (productosVendidos.size() > 3) {
@@ -121,7 +130,8 @@ public class ServicioProducto {
                 throw new MaximoUnidadesException();
             }
 
-            if (!producto.getEstaDisponibleVenta()) {
+            Boolean estaDisponible = producto.getEstaDisponibleVenta();
+            if (estaDisponible == null || !estaDisponible) {
                 detalleVenta.append("El producto").append(producto.getId()).append(producto.getDescripcion()).append("no se encuentra disponible");
                 hayProductoNoDisponible = true;
                 continue;
@@ -156,7 +166,7 @@ public class ServicioProducto {
 
     //Metodo para obtemer los comestibles no importados con descuento menor a un procentaje dado
     public List<String> obtenerComestiblesConMenorDescuento(BigDecimal porcentajeDescuento, Tienda tienda) {
-        if(porcentajeDescuento == null || tienda == null){
+        if (porcentajeDescuento == null || tienda == null) {
             throw new PorcentajeOTiendaNulosException();
         }
 
@@ -190,14 +200,14 @@ public class ServicioProducto {
     }
 
     //Metodo para mostrar el stock y saldo después de cada operación
-    public void mostrarStockYSaldo(Tienda tienda){
+    public void mostrarStockYSaldo(Tienda tienda) {
         if (tienda == null) {
             throw new MostrarStockTiendaException();
         }
 
         System.out.println("Saldo de la caja: " + tienda.getSaldoCaja());
         System.out.println("Stock de productos:");
-        for(Producto producto : tienda.getListaProductos()){
+        for (Producto producto : tienda.getListaProductos()) {
             System.out.println("Producto: " + producto.getDescripcion() + " Stock: " + producto.getStock());
         }
     }

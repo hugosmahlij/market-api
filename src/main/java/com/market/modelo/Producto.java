@@ -1,6 +1,7 @@
 package main.java.com.market.modelo;
 
 import main.java.com.market.excepciones.PrecioUnitarioInvalidoException;
+import main.java.com.market.excepciones.PrecioUnitarioNuloException;
 import main.java.com.market.excepciones.ValorInvalidoIdException;
 import main.java.com.market.excepciones.ValorInvalidoPrecioFinalException;
 import org.jetbrains.annotations.NotNull;
@@ -14,28 +15,44 @@ public abstract class Producto {
     protected Integer stock;
     protected BigDecimal precioUnitario;
     protected BigDecimal porcentajeGanancia;
-    protected Boolean estaDisponibleVenta;
+    protected Boolean estaDisponibleVenta = true;
     protected BigDecimal porcentajeDescuento;
 
 
-    public BigDecimal getPrecioFinal(){
-        if (precioUnitario == null || porcentajeGanancia == null){
+    public Producto(String id, String descripcion, BigDecimal precioUnitario, Integer stock, BigDecimal porcentajeDescuento) {
+        this.id = id;
+        this.descripcion = descripcion;
+        this.precioUnitario = precioUnitario;
+        this.stock = stock;
+        this.porcentajeGanancia = porcentajeGanancia != null ? porcentajeGanancia : BigDecimal.ZERO;
+        this.porcentajeDescuento = porcentajeDescuento != null ? porcentajeDescuento : BigDecimal.ZERO;
+    }
+
+
+    public BigDecimal getPrecioFinal() {
+        if (precioUnitario == null || porcentajeGanancia == null) {
+            System.out.println("precioUnitario: " + precioUnitario);
+            System.out.println("porcentajeGanancia: " + porcentajeGanancia);
             throw new ValorInvalidoPrecioFinalException();
         }
 
-        BigDecimal precioDeVenta = precioUnitario
-                .multiply(porcentajeGanancia.divide(new BigDecimal(100),2,RoundingMode.HALF_UP)
-                        .add(new BigDecimal(1)));
+        // Calcular el precio de venta base
+        BigDecimal porcentajeGananciaDecimal = porcentajeGanancia.divide(new BigDecimal(100), 2, RoundingMode.HALF_UP);
+        BigDecimal precioDeVenta = precioUnitario.multiply(porcentajeGananciaDecimal.add(BigDecimal.ONE));
 
-        if ( porcentajeDescuento == null || porcentajeDescuento.equals(new BigDecimal(0))) {
-            return precioDeVenta;
+        System.out.println("precioDeVenta: " + precioDeVenta);
+
+        // Verifica si porcentajeDescuento es nulo y calcula el descuento si es necesario
+        if (porcentajeDescuento == null || porcentajeDescuento.compareTo(BigDecimal.ZERO) == 0) {
+            return precioDeVenta.setScale(2, RoundingMode.HALF_UP);
         }
 
-        BigDecimal cantidadDescuento = precioDeVenta
-                .multiply(porcentajeDescuento)
-                .divide(new BigDecimal("100"),2,RoundingMode.HALF_UP);
-
+        // Calcula el descuento
+        BigDecimal descuentoDecimal = porcentajeDescuento.divide(new BigDecimal("100"), 2, RoundingMode.HALF_UP);
+        BigDecimal cantidadDescuento = precioDeVenta.multiply(descuentoDecimal);
         BigDecimal precioFinal = precioDeVenta.subtract(cantidadDescuento);
+
+        // Devuelve el precio final con dos decimales
         return precioFinal.setScale(2, RoundingMode.HALF_UP);
     }
 
@@ -69,11 +86,14 @@ public abstract class Producto {
     }
 
     public BigDecimal getPrecioUnitario() {
+        if (precioUnitario == null) {
+            throw new PrecioUnitarioNuloException();
+        }
         return precioUnitario;
     }
 
     public void setPrecioUnitario(BigDecimal precioUnitario) {
-        if (precioUnitario == null || precioUnitario.compareTo(BigDecimal.ZERO) <= 0 ) {
+        if (precioUnitario == null || precioUnitario.compareTo(BigDecimal.ZERO) <= 0) {
             throw new PrecioUnitarioInvalidoException();
         }
         this.precioUnitario = precioUnitario;
@@ -96,7 +116,7 @@ public abstract class Producto {
     }
 
     public BigDecimal getPorcentajeDescuento() {
-        return porcentajeDescuento;
+        return porcentajeDescuento != null ? porcentajeDescuento : BigDecimal.ZERO;
     }
 
     public void setPorcentajeDescuento(BigDecimal porcentajeDescuento) {
